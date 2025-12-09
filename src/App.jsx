@@ -39,7 +39,7 @@ const marqueeStyle = `
   }
 `;
 
-// --- Tech Icon Component ---
+// --- Tech Icon Component (For Marquee) ---
 const TechBadge = ({ name, color, label, customUrl }) => {
   const iconUrl = customUrl || `https://cdn.simpleicons.org/${name}/${color}`;
   
@@ -47,6 +47,18 @@ const TechBadge = ({ name, color, label, customUrl }) => {
     <div className="flex items-center gap-2 px-4 py-2 bg-[#161b22] border border-gray-800/60 rounded-full shrink-0 grayscale hover:grayscale-0 hover:border-gray-700 transition-all duration-300 cursor-default group">
       <img src={iconUrl} alt={label} className="w-5 h-5 group-hover:scale-110 transition-transform" />
       <span className="text-sm font-medium text-gray-400 group-hover:text-white">{label}</span>
+    </div>
+  );
+};
+
+// --- Project Tech Pill Component (Small version for Cards) ---
+const ProjectTechPill = ({ label, iconKey, customUrl, color }) => {
+  const iconUrl = customUrl || `https://cdn.simpleicons.org/${iconKey}/${color}`;
+  
+  return (
+    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-800/80 border border-gray-700 rounded-md shrink-0 transition-all hover:bg-gray-800 hover:border-gray-600">
+      <img src={iconUrl} alt={label} className="w-3.5 h-3.5" />
+      <span className="text-[11px] font-mono text-gray-300 tracking-tight">{label}</span>
     </div>
   );
 };
@@ -149,6 +161,46 @@ const Portfolio = () => {
   ]);
   const logContainerRef = useRef(null);
 
+  // --- 1. Dynamic Favicon & Title Logic ---
+  useEffect(() => {
+    // Set Page Title
+    document.title = "Vishal Shaji | Cloud & DevOps";
+
+    // Generate Dynamic Favicon [ VS ]
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    
+    // Background: Dark Hex
+    ctx.fillStyle = '#0d1117'; 
+    ctx.fillRect(0, 0, 64, 64);
+    
+    // Border: Blue
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(0, 0, 64, 64);
+
+    // Text: VS
+    ctx.font = 'bold 32px monospace';
+    ctx.fillStyle = '#3b82f6';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('VS', 32, 32);
+
+    // Update Favicon Link
+    const link = document.createElement('link');
+    link.type = 'image/x-icon';
+    link.rel = 'shortcut icon';
+    link.href = canvas.toDataURL("image/x-icon");
+    
+    // Remove existing favicons if any
+    const existingFavicons = document.querySelectorAll('link[rel="shortcut icon"]');
+    existingFavicons.forEach(e => e.remove());
+    
+    document.getElementsByTagName('head')[0].appendChild(link);
+  }, []);
+
   // Simulated Live Metrics
   useEffect(() => {
     const interval = setInterval(() => {
@@ -232,11 +284,22 @@ const Portfolio = () => {
     { name: 'typescript', color: '3178C6', label: 'TypeScript' },
   ];
 
+  // --- Updated Projects Data with Details & Icon Keys ---
   const projects = [
     {
       title: "Terraless Hosting",
       desc: "Minecraft server hosting platform using AWS EC2 Spot Instances and Lambda. Features a full serverless backend architecture for cost optimization.",
-      tags: ['Next.js', 'AWS Lambda', 'DynamoDB', 'Cognito'],
+      details: [
+        "Developed Next.js application with a full serverless backend architecture.",
+        "Automated backend workflows via AWS Lambda, IAM, DynamoDB, and Cognito.",
+        "Implemented CloudWatch dashboards for instance uptime and cost monitoring."
+      ],
+      techs: [
+        { label: 'Next.js', iconKey: 'nextdotjs', color: 'white' },
+        { label: 'AWS', iconKey: 'amazonwebservices', color: 'FF9900', customUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original.svg' },
+        { label: 'DynamoDB', iconKey: 'dynamodb', color: '4053D6', customUrl: 'https://cdn.simpleicons.org/amazonaws/4053D6' }, 
+        { label: 'Cognito', iconKey: 'cognito', color: 'DD344C', customUrl: 'https://cdn.simpleicons.org/amazonaws/DD344C' }
+      ],
       link: "https://terraless.com",
       icon: Server,
       color: "blue"
@@ -244,7 +307,17 @@ const Portfolio = () => {
     {
       title: "Idha Art Stay",
       desc: "Production-grade client website with automated build pipelines. Integrated Sanity CMS and deployed to Cloudflare with global CDN caching.",
-      tags: ['Next.js', 'Sanity CMS', 'Cloudflare', 'GitHub Actions'],
+      details: [
+        "Built a responsive Next.js + Sanity CMS frontend for an art homestay business.",
+        "Set up CI/CD pipelines using GitHub Actions for deployment to Cloudflare.",
+        "Configured Cloudflare CDN for performance optimization and SEO improvements."
+      ],
+      techs: [
+        { label: 'Next.js', iconKey: 'nextdotjs', color: 'white' },
+        { label: 'Sanity', iconKey: 'sanity', color: 'F03E2F' },
+        { label: 'Cloudflare', iconKey: 'cloudflare', color: 'F38020' },
+        { label: 'GitHub Actions', iconKey: 'githubactions', color: '2088FF' }
+      ],
       link: "https://idha.vercel.app",
       icon: Globe,
       color: "purple"
@@ -252,8 +325,18 @@ const Portfolio = () => {
     {
       title: "Smart Hotel Sys",
       desc: "Full-stack modernization project. Containerized application, set up CI/CD, and integrated ELK Stack for log management.",
-      tags: ['Angular', '.NET Core', 'Docker', 'SQL Server'],
-      link: null, // No live link
+      details: [
+        "Developed Smart Hotel Management System (Angular + .NET + SQL Server).",
+        "Containerized the application using Docker and implemented Github Actions CI/CD.",
+        "Integrated Prometheus & Grafana for live monitoring and ELK Stack for log management."
+      ],
+      techs: [
+        { label: 'Angular', iconKey: 'angular', color: 'DD0031' },
+        { label: '.NET Core', iconKey: 'dotnet', color: '512BD4' },
+        { label: 'Docker', iconKey: 'docker', color: '2496ED' },
+        { label: 'SQL Server', iconKey: 'microsoftsqlserver', color: 'CC2927' }
+      ],
+      link: null, 
       icon: Database,
       color: "green"
     }
@@ -497,7 +580,7 @@ const Portfolio = () => {
         </div>
 
         {/* Flex Container for Accordion Effect */}
-        <div className="flex flex-col lg:flex-row gap-4 min-h-[500px]">
+        <div className="flex flex-col lg:flex-row gap-4">
           {projects.map((project, idx) => (
             <div 
               key={idx} 
@@ -511,62 +594,81 @@ const Portfolio = () => {
                 hover:shadow-2xl hover:bg-[#161b22]
               `}
             >
-              <div className="p-8 flex flex-col h-full relative z-10">
+              <div className="p-6 flex flex-col h-full relative z-10">
                   {/* Header Icons */}
-                  <div className="flex justify-between items-start mb-6">
+                  <div className="flex justify-between items-start mb-4">
                       <div className={`p-3 rounded-xl bg-opacity-20 bg-${project.color}-500`}>
                           <project.icon size={28} className={`text-${project.color}-400`} />
                       </div>
                   </div>
 
                   {/* Title & Desc */}
-                  <div className="mb-6">
-                      <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors whitespace-nowrap">
+                  <div className="mb-4">
+                      <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors whitespace-nowrap">
                           {project.title}
                       </h3>
-                      <p className="text-gray-400 leading-relaxed line-clamp-3 lg:group-hover:line-clamp-none transition-all duration-300">
+                      <p className="text-gray-400 leading-relaxed lg:group-hover:line-clamp-none transition-all duration-300">
                           {project.desc}
                       </p>
                   </div>
 
-                  {/* Tech Stack */}
-                  <div className="flex flex-wrap gap-2 mt-auto mb-8">
-                      {project.tags.map(tech => (
-                        <span key={tech} className="text-xs font-mono text-gray-300 bg-gray-800 px-2 py-1 rounded border border-gray-700 whitespace-nowrap">
-                          {tech}
-                        </span>
+                  {/* Bullet Points (Visible PRE-hover, Hidden POST-hover) */}
+                  {/* The height animation and opacity toggle happens here */}
+                  <div className="transition-all duration-500 ease-in-out max-h-[500px] opacity-100 lg:group-hover:max-h-0 lg:group-hover:opacity-0 overflow-hidden">
+                    <ul className="space-y-2 mb-4">
+                      {project.details.map((detail, i) => (
+                        <li key={i} className="flex gap-2 text-sm text-gray-400">
+                          <ChevronRight size={14} className="text-blue-500 shrink-0 mt-1" />
+                          <span className="leading-relaxed">{detail}</span>
+                        </li>
                       ))}
+                    </ul>
                   </div>
 
-                  {/* Buttons - Hidden until hover/expand */}
-                  <div className="flex flex-col sm:flex-row gap-3 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-500 lg:translate-y-4 lg:group-hover:translate-y-0">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPreviewProject(project);
-                        }}
-                        className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-900/20"
-                      >
-                        <Eye size={18} />
-                        <span className="whitespace-nowrap">Live Preview</span>
-                      </button>
-                      
-                      {project.link ? (
-                          <a 
-                            href={project.link} 
-                            target="_blank" 
-                            rel="noreferrer"
-                            className="flex-1 px-4 py-3 bg-[#0d1117] border border-gray-700 hover:border-gray-500 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-all hover:bg-gray-800"
+                  {/* Tech Stack Pills & Buttons (Hidden PRE-hover, Visible POST-hover) */}
+                  {/* They now occupy the space vacated by the bullet points */}
+                  <div className="flex flex-col justify-end mt-auto transition-all duration-500 ease-in-out max-h-0 opacity-0 lg:group-hover:max-h-[300px] lg:group-hover:opacity-100 overflow-hidden">
+                      <div className="flex flex-wrap gap-2 mb-6">
+                          {project.techs.map((tech, tIdx) => (
+                            <ProjectTechPill 
+                              key={tIdx} 
+                              label={tech.label} 
+                              iconKey={tech.iconKey} 
+                              color={tech.color}
+                              customUrl={tech.customUrl}
+                            />
+                          ))}
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row gap-3">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPreviewProject(project);
+                            }}
+                            className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-900/20"
                           >
-                            <ExternalLink size={18} />
-                            <span className="whitespace-nowrap">Visit Site</span>
-                          </a>
-                      ) : (
-                          <button disabled className="flex-1 px-4 py-3 bg-gray-900/50 border border-gray-800 text-gray-500 rounded-lg font-medium flex items-center justify-center gap-2 cursor-not-allowed">
-                              <ExternalLink size={18} />
-                              <span className="whitespace-nowrap">Internal Only</span>
+                            <Eye size={18} />
+                            <span className="whitespace-nowrap">Live Preview</span>
                           </button>
-                      )}
+                          
+                          {project.link ? (
+                              <a 
+                                href={project.link} 
+                                target="_blank" 
+                                rel="noreferrer"
+                                className="flex-1 px-4 py-3 bg-[#0d1117] border border-gray-700 hover:border-gray-500 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-all hover:bg-gray-800"
+                              >
+                                <ExternalLink size={18} />
+                                <span className="whitespace-nowrap">Visit Site</span>
+                              </a>
+                          ) : (
+                              <button disabled className="flex-1 px-4 py-3 bg-gray-900/50 border border-gray-800 text-gray-500 rounded-lg font-medium flex items-center justify-center gap-2 cursor-not-allowed">
+                                  <ExternalLink size={18} />
+                                  <span className="whitespace-nowrap">Internal Only</span>
+                              </button>
+                          )}
+                      </div>
                   </div>
               </div>
             </div>
