@@ -15,7 +15,11 @@ import {
   HardDrive,
   Box,
   Briefcase,
-  Cloud
+  Cloud,
+  X,
+  Maximize2,
+  Loader2,
+  Eye
 } from 'lucide-react';
 
 // --- Marquee Styles ---
@@ -37,7 +41,6 @@ const marqueeStyle = `
 
 // --- Tech Icon Component ---
 const TechBadge = ({ name, color, label, customUrl }) => {
-  // Use custom URL if provided (for AWS/C#), otherwise default to Simple Icons CDN
   const iconUrl = customUrl || `https://cdn.simpleicons.org/${name}/${color}`;
   
   return (
@@ -48,8 +51,95 @@ const TechBadge = ({ name, color, label, customUrl }) => {
   );
 };
 
+// --- Project Preview Modal Component ---
+const ProjectPreviewModal = ({ project, onClose }) => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  if (!project) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+      {/* Click outside to close */}
+      <div className="absolute inset-0" onClick={onClose} />
+      
+      <div className="relative w-full h-full max-w-7xl bg-[#0d1117] rounded-xl border border-gray-700 shadow-2xl flex flex-col overflow-hidden">
+        {/* Browser Header */}
+        <div className="h-10 bg-[#161b22] border-b border-gray-700 flex items-center justify-between px-4 shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-red-500/80 cursor-pointer hover:bg-red-500" onClick={onClose} title="Close" />
+              <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+              <div className="w-3 h-3 rounded-full bg-green-500/80" />
+            </div>
+            <div className="ml-4 px-3 py-0.5 bg-[#0d1117] rounded text-xs text-gray-400 font-mono border border-gray-800 flex items-center gap-2 min-w-[200px]">
+              <Globe size={10} />
+              {project.link || 'local-environment'}
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            {project.link && (
+              <a 
+                href={project.link} 
+                target="_blank" 
+                rel="noreferrer" 
+                className="text-gray-400 hover:text-white transition-colors"
+                title="Open in new tab"
+              >
+                <ExternalLink size={16} />
+              </a>
+            )}
+            <button 
+              onClick={onClose}
+              className="text-gray-400 hover:text-red-400 transition-colors"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        </div>
+
+        {/* Browser Content */}
+        <div className="flex-1 relative bg-white">
+          {isLoading && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0d1117] text-blue-400 z-10">
+              <Loader2 size={40} className="animate-spin mb-4" />
+              <p className="font-mono text-sm">Establishing connection to {project.title}...</p>
+            </div>
+          )}
+          
+          {project.link ? (
+            <iframe
+              src={project.link}
+              title={project.title}
+              className="w-full h-full border-0"
+              onLoad={() => setIsLoading(false)}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center bg-[#0d1117] text-gray-400 p-8 text-center">
+              <Database size={64} className="mb-6 text-gray-600" />
+              <h3 className="text-xl font-bold text-white mb-2">Internal System</h3>
+              <p className="max-w-md">
+                This project ({project.title}) is an internal application or backend service without a public frontend interface accessible via iframe.
+              </p>
+              <button 
+                onClick={onClose}
+                className="mt-8 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-all font-medium"
+              >
+                Return to Portfolio
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Portfolio = () => {
   const [activeSection, setActiveSection] = useState('home');
+  const [previewProject, setPreviewProject] = useState(null);
   
   // --- DevOps Monitor State ---
   const [metrics, setMetrics] = useState({ cpu: 15, memory: 42, uptime: 99.98 });
@@ -116,10 +206,9 @@ const Portfolio = () => {
     }
   };
 
-  // --- Tech Stack Data (Grouped for Marquee) ---
+  // --- Tech Stack Data ---
   const infraStack = [
-    // Using Devicon for AWS to ensure reliability
-    { name: 'aws', color: 'FF9900', label: 'AWS', customUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original.svg' },
+    { name: 'aws', color: 'FF9900', label: 'AWS', customUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg' },
     { name: 'docker', color: '2496ED', label: 'Docker' },
     { name: 'kubernetes', color: '326CE5', label: 'Kubernetes' },
     { name: 'terraform', color: '7B42BC', label: 'Terraform' },
@@ -139,15 +228,49 @@ const Portfolio = () => {
     { name: 'nextdotjs', color: 'white', label: 'Next.js' },
     { name: 'postgresql', color: '4169E1', label: 'PostgreSQL' },
     { name: 'mongodb', color: '47A248', label: 'MongoDB' },
-    // Using Devicon for C# to ensure reliability
     { name: 'csharp', color: '239120', label: 'C#', customUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg' },
     { name: 'typescript', color: '3178C6', label: 'TypeScript' },
+  ];
+
+  const projects = [
+    {
+      title: "Terraless Hosting",
+      desc: "Minecraft server hosting platform using AWS EC2 Spot Instances and Lambda. Features a full serverless backend architecture for cost optimization.",
+      tags: ['Next.js', 'AWS Lambda', 'DynamoDB', 'Cognito'],
+      link: "https://terraless.com",
+      icon: Server,
+      color: "blue"
+    },
+    {
+      title: "Idha Art Stay",
+      desc: "Production-grade client website with automated build pipelines. Integrated Sanity CMS and deployed to Cloudflare with global CDN caching.",
+      tags: ['Next.js', 'Sanity CMS', 'Cloudflare', 'GitHub Actions'],
+      link: "https://idha.vercel.app",
+      icon: Globe,
+      color: "purple"
+    },
+    {
+      title: "Smart Hotel Sys",
+      desc: "Full-stack modernization project. Containerized application, set up CI/CD, and integrated ELK Stack for log management.",
+      tags: ['Angular', '.NET Core', 'Docker', 'SQL Server'],
+      link: null, // No live link
+      icon: Database,
+      color: "green"
+    }
   ];
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-gray-300 font-sans selection:bg-blue-500/30">
       <style>{marqueeStyle}</style>
       
+      {/* Modal Overlay */}
+      {previewProject && (
+        <ProjectPreviewModal 
+          project={previewProject} 
+          onClose={() => setPreviewProject(null)} 
+        />
+      )}
+
       {/* Navigation */}
       <nav className="fixed top-0 w-full bg-[#0d1117]/80 backdrop-blur-md border-b border-gray-800 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -367,78 +490,87 @@ const Portfolio = () => {
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="py-20 px-6 max-w-6xl mx-auto bg-[#161b22]/30">
+      <section id="projects" className="py-20 px-6 max-w-7xl mx-auto bg-[#161b22]/30">
         <div className="flex items-center gap-4 mb-12">
           <h2 className="text-3xl font-bold text-white">Featured Projects</h2>
           <div className="h-px bg-gray-800 flex-grow"></div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Project 1 */}
-          <div className="group bg-[#0d1117] border border-gray-800 rounded-xl p-6 hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-900/10 transition-all flex flex-col">
-            <div className="flex justify-between items-start mb-6">
-              <div className="p-3 bg-blue-900/20 text-blue-400 rounded-lg">
-                <Server size={24} />
-              </div>
-              <a href="https://terraless.com" className="text-gray-500 hover:text-white transition-colors">
-                <ExternalLink size={20} />
-              </a>
-            </div>
-            <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">Terraless Hosting</h3>
-            <p className="text-gray-400 text-sm mb-6 leading-relaxed flex-grow">
-              Minecraft server hosting platform using AWS EC2 Spot Instances and Lambda. Features a full serverless backend architecture for cost optimization.
-            </p>
-            <div className="flex flex-wrap gap-2 mt-auto">
-              {['Next.js', 'AWS Lambda', 'DynamoDB', 'Cognito'].map(tech => (
-                <span key={tech} className="text-xs font-mono text-blue-300 bg-blue-900/10 px-2 py-1 rounded border border-blue-900/20">
-                  {tech}
-                </span>
-              ))}
-            </div>
-          </div>
+        {/* Flex Container for Accordion Effect */}
+        <div className="flex flex-col lg:flex-row gap-4 min-h-[500px]">
+          {projects.map((project, idx) => (
+            <div 
+              key={idx} 
+              className={`
+                group relative 
+                bg-[#0d1117] border border-gray-800 rounded-2xl overflow-hidden 
+                flex flex-col justify-between
+                transition-all duration-500 ease-in-out
+                w-full lg:w-auto
+                lg:flex-1 lg:hover:flex-[2.5] lg:hover:border-blue-500/50
+                hover:shadow-2xl hover:bg-[#161b22]
+              `}
+            >
+              <div className="p-8 flex flex-col h-full relative z-10">
+                  {/* Header Icons */}
+                  <div className="flex justify-between items-start mb-6">
+                      <div className={`p-3 rounded-xl bg-opacity-20 bg-${project.color}-500`}>
+                          <project.icon size={28} className={`text-${project.color}-400`} />
+                      </div>
+                  </div>
 
-          {/* Project 2 */}
-          <div className="group bg-[#0d1117] border border-gray-800 rounded-xl p-6 hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-900/10 transition-all flex flex-col">
-            <div className="flex justify-between items-start mb-6">
-              <div className="p-3 bg-purple-900/20 text-purple-400 rounded-lg">
-                <Globe size={24} />
-              </div>
-              <a href="https://idha.vercel.app" className="text-gray-500 hover:text-white transition-colors">
-                <ExternalLink size={20} />
-              </a>
-            </div>
-            <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">Idha Art Stay</h3>
-            <p className="text-gray-400 text-sm mb-6 leading-relaxed flex-grow">
-              Production-grade client website with automated build pipelines. Integrated Sanity CMS and deployed to Cloudflare with global CDN caching.
-            </p>
-            <div className="flex flex-wrap gap-2 mt-auto">
-              {['Next.js', 'Sanity CMS', 'Cloudflare', 'GitHub Actions'].map(tech => (
-                <span key={tech} className="text-xs font-mono text-purple-300 bg-purple-900/10 px-2 py-1 rounded border border-purple-900/20">
-                  {tech}
-                </span>
-              ))}
-            </div>
-          </div>
+                  {/* Title & Desc */}
+                  <div className="mb-6">
+                      <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors whitespace-nowrap">
+                          {project.title}
+                      </h3>
+                      <p className="text-gray-400 leading-relaxed line-clamp-3 lg:group-hover:line-clamp-none transition-all duration-300">
+                          {project.desc}
+                      </p>
+                  </div>
 
-          {/* Project 3 */}
-          <div className="group bg-[#0d1117] border border-gray-800 rounded-xl p-6 hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-900/10 transition-all flex flex-col">
-            <div className="flex justify-between items-start mb-6">
-              <div className="p-3 bg-green-900/20 text-green-400 rounded-lg">
-                <Database size={24} />
+                  {/* Tech Stack */}
+                  <div className="flex flex-wrap gap-2 mt-auto mb-8">
+                      {project.tags.map(tech => (
+                        <span key={tech} className="text-xs font-mono text-gray-300 bg-gray-800 px-2 py-1 rounded border border-gray-700 whitespace-nowrap">
+                          {tech}
+                        </span>
+                      ))}
+                  </div>
+
+                  {/* Buttons - Hidden until hover/expand */}
+                  <div className="flex flex-col sm:flex-row gap-3 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-500 lg:translate-y-4 lg:group-hover:translate-y-0">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPreviewProject(project);
+                        }}
+                        className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-900/20"
+                      >
+                        <Eye size={18} />
+                        <span className="whitespace-nowrap">Live Preview</span>
+                      </button>
+                      
+                      {project.link ? (
+                          <a 
+                            href={project.link} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="flex-1 px-4 py-3 bg-[#0d1117] border border-gray-700 hover:border-gray-500 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-all hover:bg-gray-800"
+                          >
+                            <ExternalLink size={18} />
+                            <span className="whitespace-nowrap">Visit Site</span>
+                          </a>
+                      ) : (
+                          <button disabled className="flex-1 px-4 py-3 bg-gray-900/50 border border-gray-800 text-gray-500 rounded-lg font-medium flex items-center justify-center gap-2 cursor-not-allowed">
+                              <ExternalLink size={18} />
+                              <span className="whitespace-nowrap">Internal Only</span>
+                          </button>
+                      )}
+                  </div>
               </div>
             </div>
-            <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">Smart Hotel Sys</h3>
-            <p className="text-gray-400 text-sm mb-6 leading-relaxed flex-grow">
-              Full-stack modernization project. Containerized application, set up CI/CD, and integrated ELK Stack for log management.
-            </p>
-            <div className="flex flex-wrap gap-2 mt-auto">
-              {['Angular', '.NET Core', 'Docker', 'SQL Server'].map(tech => (
-                <span key={tech} className="text-xs font-mono text-green-300 bg-green-900/10 px-2 py-1 rounded border border-green-900/20">
-                  {tech}
-                </span>
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
