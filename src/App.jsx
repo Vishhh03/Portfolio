@@ -284,11 +284,40 @@ const Portfolio = () => {
     { name: 'typescript', color: '3178C6', label: 'TypeScript' },
   ];
 
-  // --- Updated Projects Data with Details & Icon Keys ---
+  // --- EXPERIENCE DATA (With Logo Support) ---
+  const experiences = [
+    {
+      company: "Cognizant Technology Solutions",
+      role: "Programmer Analyst Trainee",
+      period: "July 2025 – Present",
+      // logo: "/path/to/logo.png", // <--- ADD YOUR LOGO HERE
+      defaultColor: "blue",
+      details: [
+        "Led a 5-member team modernizing a full-stack web platform while integrating DevOps practices.",
+        "Containerized the Smart Hotel Management System (Angular + .NET) using Docker.",
+        "Implemented CI/CD pipelines via GitHub Actions and integrated Prometheus/Grafana monitoring."
+      ]
+    },
+    {
+      company: "Bommaku Constructions",
+      role: "Tech Consultant (Intern)",
+      period: "Jan 2025 – June 2025",
+      // logo: "/path/to/logo.png", // <--- ADD YOUR LOGO HERE
+      defaultColor: "orange",
+      details: [
+        "Supported digital transformation through web, cloud, and visualization solutions.",
+        "Designed Unreal Engine 5 architectural visualization and optimized website performance.",
+        "Guided management on adopting cloud technologies for operational efficiency."
+      ]
+    }
+  ];
+
+  // --- PROJECTS DATA (With Logo Support) ---
   const projects = [
     {
       title: "Terraless Hosting",
       desc: "Minecraft server hosting platform using AWS EC2 Spot Instances and Lambda. Features a full serverless backend architecture for cost optimization.",
+      // logo: "/path/to/project-logo.png", // <--- ADD YOUR LOGO HERE
       details: [
         "Developed Next.js application with a full serverless backend architecture.",
         "Automated backend workflows via AWS Lambda, IAM, DynamoDB, and Cognito.",
@@ -307,6 +336,7 @@ const Portfolio = () => {
     {
       title: "Idha Art Stay",
       desc: "Production-grade client website with automated build pipelines. Integrated Sanity CMS and deployed to Cloudflare with global CDN caching.",
+      // logo: "/path/to/project-logo.png", // <--- ADD YOUR LOGO HERE
       details: [
         "Built a responsive Next.js + Sanity CMS frontend for an art homestay business.",
         "Set up CI/CD pipelines using GitHub Actions for deployment to Cloudflare.",
@@ -325,6 +355,7 @@ const Portfolio = () => {
     {
       title: "Smart Hotel Sys",
       desc: "Full-stack modernization project. Containerized application, set up CI/CD, and integrated ELK Stack for log management.",
+      // logo: "/path/to/project-logo.png", // <--- ADD YOUR LOGO HERE
       details: [
         "Developed Smart Hotel Management System (Angular + .NET + SQL Server).",
         "Containerized the application using Docker and implemented Github Actions CI/CD.",
@@ -496,79 +527,43 @@ const Portfolio = () => {
         </div>
 
         <div className="relative border-l border-gray-800 ml-3 space-y-12">
-          {/* Job 1: Cognizant */}
-          <div className="pl-10 relative group">
-            <div className="absolute -left-[5px] top-6 w-2.5 h-2.5 rounded-full bg-blue-500 group-hover:scale-125 transition-transform z-10"></div>
-            
-            <div className="flex gap-6 flex-col sm:flex-row items-start">
-              {/* Company Logo Placeholder */}
-              <div className="w-14 h-14 bg-blue-900/20 border border-blue-900/50 rounded-lg flex items-center justify-center shrink-0">
-                 <span className="text-2xl font-bold text-blue-400">C</span>
-              </div>
+          {experiences.map((job, idx) => (
+            <div key={idx} className="pl-10 relative group">
+              <div className={`absolute -left-[5px] top-6 w-2.5 h-2.5 rounded-full bg-${job.defaultColor}-500 group-hover:scale-125 transition-transform z-10`}></div>
+              
+              <div className="flex gap-6 flex-col sm:flex-row items-start">
+                {/* Dynamic Logo Rendering */}
+                {job.logo ? (
+                  <div className="w-14 h-14 bg-white rounded-lg flex items-center justify-center shrink-0 overflow-hidden border border-gray-700">
+                    <img src={job.logo} alt={job.company} className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div className={`w-14 h-14 bg-${job.defaultColor}-900/20 border border-${job.defaultColor}-900/50 rounded-lg flex items-center justify-center shrink-0`}>
+                    <span className={`text-2xl font-bold text-${job.defaultColor}-400`}>{job.company.charAt(0)}</span>
+                  </div>
+                )}
 
-              <div className="flex-1">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
-                  <h3 className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">Cognizant Technology Solutions</h3>
-                  <span className="text-sm font-mono text-gray-500 bg-gray-800/50 px-3 py-1 rounded mt-2 sm:mt-0 w-fit">July 2025 – Present</span>
+                <div className="flex-1">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
+                    <h3 className={`text-xl font-bold text-white group-hover:text-${job.defaultColor}-400 transition-colors`}>{job.company}</h3>
+                    <span className="text-sm font-mono text-gray-500 bg-gray-800/50 px-3 py-1 rounded mt-2 sm:mt-0 w-fit">{job.period}</span>
+                  </div>
+                  <div className={`text-${job.defaultColor}-400 font-medium mb-4 flex items-center gap-2`}>
+                    <Briefcase size={16} />
+                    {job.role}
+                  </div>
+                  <ul className="space-y-3 text-gray-400 text-sm">
+                    {job.details.map((detail, dIdx) => (
+                      <li key={dIdx} className="flex gap-3 items-start">
+                        <ChevronRight size={16} className={`text-${job.defaultColor}-500 shrink-0 mt-0.5`} />
+                        <span>{detail}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <div className="text-blue-400 font-medium mb-4 flex items-center gap-2">
-                  <Briefcase size={16} />
-                  Programmer Analyst Trainee
-                </div>
-                <ul className="space-y-3 text-gray-400 text-sm">
-                  <li className="flex gap-3 items-start">
-                    <ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" />
-                    <span>Led a 5-member team modernizing a full-stack web platform while integrating DevOps practices.</span>
-                  </li>
-                  <li className="flex gap-3 items-start">
-                    <ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" />
-                    <span>Containerized the Smart Hotel Management System (Angular + .NET) using Docker.</span>
-                  </li>
-                  <li className="flex gap-3 items-start">
-                    <ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" />
-                    <span>Implemented CI/CD pipelines via GitHub Actions and integrated Prometheus/Grafana monitoring.</span>
-                  </li>
-                </ul>
               </div>
             </div>
-          </div>
-
-          {/* Job 2: Bommaku */}
-          <div className="pl-10 relative group">
-            <div className="absolute -left-[5px] top-6 w-2.5 h-2.5 rounded-full bg-gray-600 group-hover:bg-blue-500 transition-colors z-10"></div>
-            
-            <div className="flex gap-6 flex-col sm:flex-row items-start">
-              {/* Company Logo Placeholder */}
-              <div className="w-14 h-14 bg-orange-900/20 border border-orange-900/50 rounded-lg flex items-center justify-center shrink-0">
-                 <span className="text-2xl font-bold text-orange-400">B</span>
-              </div>
-
-              <div className="flex-1">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
-                  <h3 className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">Bommaku Constructions</h3>
-                  <span className="text-sm font-mono text-gray-500 bg-gray-800/50 px-3 py-1 rounded mt-2 sm:mt-0 w-fit">Jan 2025 – June 2025</span>
-                </div>
-                <div className="text-blue-400 font-medium mb-4 flex items-center gap-2">
-                  <Briefcase size={16} />
-                  Tech Consultant (Intern)
-                </div>
-                <ul className="space-y-3 text-gray-400 text-sm">
-                  <li className="flex gap-3 items-start">
-                    <ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" />
-                    <span>Supported digital transformation through web, cloud, and visualization solutions.</span>
-                  </li>
-                  <li className="flex gap-3 items-start">
-                    <ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" />
-                    <span>Designed Unreal Engine 5 architectural visualization and optimized website performance.</span>
-                  </li>
-                  <li className="flex gap-3 items-start">
-                    <ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" />
-                    <span>Guided management on adopting cloud technologies for operational efficiency.</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
@@ -579,7 +574,7 @@ const Portfolio = () => {
           <div className="h-px bg-gray-800 flex-grow"></div>
         </div>
 
-        {/* Flex Container for Accordion Effect */}
+        {/* Flex Container for Accordion Effect - Using justify-start to pack content at top */}
         <div className="flex flex-col lg:flex-row gap-4">
           {projects.map((project, idx) => (
             <div 
@@ -587,7 +582,7 @@ const Portfolio = () => {
               className={`
                 group relative 
                 bg-[#0d1117] border border-gray-800 rounded-2xl overflow-hidden 
-                flex flex-col justify-between
+                flex flex-col justify-start
                 transition-all duration-500 ease-in-out
                 w-full lg:w-auto
                 lg:flex-1 lg:hover:flex-[2.5] lg:hover:border-blue-500/50
@@ -595,11 +590,17 @@ const Portfolio = () => {
               `}
             >
               <div className="p-6 flex flex-col h-full relative z-10">
-                  {/* Header Icons */}
+                  {/* Header Icons & Logo Support */}
                   <div className="flex justify-between items-start mb-4">
-                      <div className={`p-3 rounded-xl bg-opacity-20 bg-${project.color}-500`}>
-                          <project.icon size={28} className={`text-${project.color}-400`} />
-                      </div>
+                      {project.logo ? (
+                        <div className="w-12 h-12 rounded-xl bg-white overflow-hidden border border-gray-700">
+                          <img src={project.logo} alt={project.title} className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className={`p-3 rounded-xl bg-opacity-20 bg-${project.color}-500`}>
+                            <project.icon size={28} className={`text-${project.color}-400`} />
+                        </div>
+                      )}
                   </div>
 
                   {/* Title & Desc */}
@@ -613,7 +614,6 @@ const Portfolio = () => {
                   </div>
 
                   {/* Bullet Points (Visible PRE-hover, Hidden POST-hover) */}
-                  {/* The height animation and opacity toggle happens here */}
                   <div className="transition-all duration-500 ease-in-out max-h-[500px] opacity-100 lg:group-hover:max-h-0 lg:group-hover:opacity-0 overflow-hidden">
                     <ul className="space-y-2 mb-4">
                       {project.details.map((detail, i) => (
@@ -626,8 +626,7 @@ const Portfolio = () => {
                   </div>
 
                   {/* Tech Stack Pills & Buttons (Hidden PRE-hover, Visible POST-hover) */}
-                  {/* They now occupy the space vacated by the bullet points */}
-                  <div className="flex flex-col justify-end mt-auto transition-all duration-500 ease-in-out max-h-0 opacity-0 lg:group-hover:max-h-[300px] lg:group-hover:opacity-100 overflow-hidden">
+                  <div className="flex flex-col justify-end transition-all duration-500 ease-in-out max-h-0 opacity-0 lg:group-hover:max-h-[300px] lg:group-hover:opacity-100 overflow-hidden">
                       <div className="flex flex-wrap gap-2 mb-6">
                           {project.techs.map((tech, tIdx) => (
                             <ProjectTechPill 
