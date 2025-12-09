@@ -1,23 +1,52 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Terminal, 
-  Cloud, 
   Server, 
-  Code, 
   Database, 
   Cpu, 
   ExternalLink, 
   Github, 
   Linkedin, 
   Mail, 
-  MapPin, 
   ChevronRight,
   Globe,
   Award,
   Activity,
   HardDrive,
-  Box
+  Box,
+  Briefcase,
+  Cloud
 } from 'lucide-react';
+
+// --- Marquee Styles ---
+const marqueeStyle = `
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-scroll {
+    animation: scroll 30s linear infinite;
+  }
+  .animate-scroll-reverse {
+    animation: scroll 30s linear infinite reverse;
+  }
+  .pause-on-hover:hover {
+    animation-play-state: paused;
+  }
+`;
+
+// --- Tech Icon Component ---
+const TechBadge = ({ name, color, label, customUrl }) => {
+  // Use custom URL if provided (for AWS/C#), otherwise default to Simple Icons CDN
+  const iconUrl = customUrl || `https://cdn.simpleicons.org/${name}/${color}`;
+  
+  return (
+    <div className="flex items-center gap-2 px-4 py-2 bg-[#161b22] border border-gray-800/60 rounded-full shrink-0 grayscale hover:grayscale-0 hover:border-gray-700 transition-all duration-300 cursor-default group">
+      <img src={iconUrl} alt={label} className="w-5 h-5 group-hover:scale-110 transition-transform" />
+      <span className="text-sm font-medium text-gray-400 group-hover:text-white">{label}</span>
+    </div>
+  );
+};
 
 const Portfolio = () => {
   const [activeSection, setActiveSection] = useState('home');
@@ -28,7 +57,7 @@ const Portfolio = () => {
     { time: '00:01', msg: 'Initializing system boot sequence...' },
     { time: '00:02', msg: 'Loading kernel modules: AWS, Docker, Terraform...' },
   ]);
-  const logContainerRef = useRef(null); // Changed to container ref for isolated scrolling
+  const logContainerRef = useRef(null);
 
   // Simulated Live Metrics
   useEffect(() => {
@@ -64,7 +93,7 @@ const Portfolio = () => {
         const now = new Date();
         const timeString = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
         
-        setLogs(prev => [...prev.slice(-6), { time: timeString, msg: logSequence[index] }]); // Keep last 7 logs
+        setLogs(prev => [...prev.slice(-6), { time: timeString, msg: logSequence[index] }]);
         index++;
       }
     }, 1200);
@@ -72,7 +101,7 @@ const Portfolio = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Auto-scroll logs - FIXED: Uses scrollTop on container instead of window scroll
+  // Auto-scroll logs
   useEffect(() => {
     if (logContainerRef.current) {
       logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
@@ -87,15 +116,38 @@ const Portfolio = () => {
     }
   };
 
-  const skills = {
-    cloud: ["AWS (EC2, Lambda, S3)", "ECS & SNS", "Cognito", "CloudWatch", "IAM"],
-    devops: ["Docker", "Kubernetes", "Jenkins", "Terraform", "GitHub Actions", "Prometheus", "Grafana", "ELK Stack"],
-    backend: ["Python", "C# / .NET Core", "Node.js", "FastAPI", "PostgreSQL", "SQL Server", "DynamoDB"],
-    frontend: ["Angular", "React", "Next.js", "Tailwind CSS", "Sanity CMS"]
-  };
+  // --- Tech Stack Data (Grouped for Marquee) ---
+  const infraStack = [
+    // Using Devicon for AWS to ensure reliability
+    { name: 'aws', color: 'FF9900', label: 'AWS', customUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original.svg' },
+    { name: 'docker', color: '2496ED', label: 'Docker' },
+    { name: 'kubernetes', color: '326CE5', label: 'Kubernetes' },
+    { name: 'terraform', color: '7B42BC', label: 'Terraform' },
+    { name: 'jenkins', color: 'D24939', label: 'Jenkins' },
+    { name: 'githubactions', color: '2088FF', label: 'GitHub Actions' },
+    { name: 'prometheus', color: 'E6522C', label: 'Prometheus' },
+    { name: 'grafana', color: 'F46800', label: 'Grafana' },
+    { name: 'linux', color: 'FCC624', label: 'Linux' },
+    { name: 'elastic', color: '005571', label: 'ELK Stack' },
+  ];
+
+  const devStack = [
+    { name: 'python', color: '3776AB', label: 'Python' },
+    { name: 'dotnet', color: '512BD4', label: '.NET Core' },
+    { name: 'react', color: '61DAFB', label: 'React' },
+    { name: 'angular', color: 'DD0031', label: 'Angular' },
+    { name: 'nextdotjs', color: 'white', label: 'Next.js' },
+    { name: 'postgresql', color: '4169E1', label: 'PostgreSQL' },
+    { name: 'mongodb', color: '47A248', label: 'MongoDB' },
+    // Using Devicon for C# to ensure reliability
+    { name: 'csharp', color: '239120', label: 'C#', customUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg' },
+    { name: 'typescript', color: '3178C6', label: 'TypeScript' },
+  ];
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-gray-300 font-sans selection:bg-blue-500/30">
+      <style>{marqueeStyle}</style>
+      
       {/* Navigation */}
       <nav className="fixed top-0 w-full bg-[#0d1117]/80 backdrop-blur-md border-b border-gray-800 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -123,7 +175,7 @@ const Portfolio = () => {
         </div>
       </nav>
 
-      {/* Hero Section - ID Changed to 'about' to match navigation */}
+      {/* Hero Section */}
       <section id="about" className="pt-32 pb-20 px-6 max-w-6xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
@@ -155,9 +207,8 @@ const Portfolio = () => {
             </div>
           </div>
 
-          {/* Enhanced DevOps Control Panel */}
+          {/* DevOps Control Panel */}
           <div className="bg-[#161b22] rounded-xl border border-gray-800 shadow-2xl overflow-hidden font-mono text-sm">
-            {/* Window Controls */}
             <div className="bg-[#0d1117] px-4 py-2 border-b border-gray-800 flex justify-between items-center">
               <div className="flex gap-2">
                 <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
@@ -167,7 +218,6 @@ const Portfolio = () => {
               <div className="text-xs text-gray-500">root@vishal-monitor:~</div>
             </div>
 
-            {/* Dashboard Stats */}
             <div className="grid grid-cols-3 gap-px bg-gray-800 border-b border-gray-800">
               <div className="bg-[#161b22] p-4">
                 <div className="flex items-center gap-2 text-gray-400 text-xs mb-1">
@@ -203,7 +253,6 @@ const Portfolio = () => {
               </div>
             </div>
 
-            {/* Live Logs - FIXED: Added ref to container for scrollTop control */}
             <div 
               ref={logContainerRef}
               className="p-4 h-48 overflow-y-auto font-mono text-xs space-y-2 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent"
@@ -222,7 +271,6 @@ const Portfolio = () => {
               </div>
             </div>
             
-            {/* Status Footer */}
             <div className="bg-[#0d1117] border-t border-gray-800 px-4 py-2 flex justify-between text-xs text-gray-500">
                <div>Region: <span className="text-gray-300">ap-south-1</span></div>
                <div className="flex items-center gap-2">
@@ -235,67 +283,91 @@ const Portfolio = () => {
       </section>
 
       {/* Experience Section */}
-      <section id="experience" className="py-20 bg-[#161b22]/50 border-y border-gray-800">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="flex items-center gap-4 mb-12">
-            <h2 className="text-3xl font-bold text-white">Experience</h2>
-            <div className="h-px bg-gray-800 flex-grow"></div>
+      <section id="experience" className="py-20 px-6 max-w-6xl mx-auto">
+        <div className="flex items-center gap-4 mb-12">
+          <h2 className="text-3xl font-bold text-white">Experience</h2>
+          <div className="h-px bg-gray-800 flex-grow"></div>
+        </div>
+
+        <div className="relative border-l border-gray-800 ml-3 space-y-12">
+          {/* Job 1: Cognizant */}
+          <div className="pl-10 relative group">
+            <div className="absolute -left-[5px] top-6 w-2.5 h-2.5 rounded-full bg-blue-500 group-hover:scale-125 transition-transform z-10"></div>
+            
+            <div className="flex gap-6 flex-col sm:flex-row items-start">
+              {/* Company Logo Placeholder */}
+              <div className="w-14 h-14 bg-blue-900/20 border border-blue-900/50 rounded-lg flex items-center justify-center shrink-0">
+                 <span className="text-2xl font-bold text-blue-400">C</span>
+              </div>
+
+              <div className="flex-1">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
+                  <h3 className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">Cognizant Technology Solutions</h3>
+                  <span className="text-sm font-mono text-gray-500 bg-gray-800/50 px-3 py-1 rounded mt-2 sm:mt-0 w-fit">July 2025 – Present</span>
+                </div>
+                <div className="text-blue-400 font-medium mb-4 flex items-center gap-2">
+                  <Briefcase size={16} />
+                  Programmer Analyst Trainee
+                </div>
+                <ul className="space-y-3 text-gray-400 text-sm">
+                  <li className="flex gap-3 items-start">
+                    <ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" />
+                    <span>Led a 5-member team modernizing a full-stack web platform while integrating DevOps practices.</span>
+                  </li>
+                  <li className="flex gap-3 items-start">
+                    <ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" />
+                    <span>Containerized the Smart Hotel Management System (Angular + .NET) using Docker.</span>
+                  </li>
+                  <li className="flex gap-3 items-start">
+                    <ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" />
+                    <span>Implemented CI/CD pipelines via GitHub Actions and integrated Prometheus/Grafana monitoring.</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
 
-          <div className="relative border-l border-gray-800 ml-3 space-y-12">
-            {/* Job 1 */}
-            <div className="pl-10 relative group">
-              <div className="absolute -left-[5px] top-2 w-2.5 h-2.5 rounded-full bg-blue-500 group-hover:scale-125 transition-transform"></div>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
-                <h3 className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">Cognizant Technology Solutions</h3>
-                <span className="text-sm font-mono text-gray-500 bg-gray-800/50 px-3 py-1 rounded">July 2025 – Present</span>
+          {/* Job 2: Bommaku */}
+          <div className="pl-10 relative group">
+            <div className="absolute -left-[5px] top-6 w-2.5 h-2.5 rounded-full bg-gray-600 group-hover:bg-blue-500 transition-colors z-10"></div>
+            
+            <div className="flex gap-6 flex-col sm:flex-row items-start">
+              {/* Company Logo Placeholder */}
+              <div className="w-14 h-14 bg-orange-900/20 border border-orange-900/50 rounded-lg flex items-center justify-center shrink-0">
+                 <span className="text-2xl font-bold text-orange-400">B</span>
               </div>
-              <div className="text-blue-400 font-medium mb-4">Programmer Analyst Trainee</div>
-              <ul className="space-y-3 text-gray-400 text-sm">
-                <li className="flex gap-3">
-                  <ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" />
-                  Led a 5-member team modernizing a full-stack web platform while integrating DevOps practices.
-                </li>
-                <li className="flex gap-3">
-                  <ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" />
-                  Containerized the Smart Hotel Management System (Angular + .NET) using Docker.
-                </li>
-                <li className="flex gap-3">
-                  <ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" />
-                  Implemented CI/CD pipelines via GitHub Actions and integrated Prometheus/Grafana monitoring.
-                </li>
-              </ul>
-            </div>
 
-            {/* Job 2 */}
-            <div className="pl-10 relative group">
-              <div className="absolute -left-[5px] top-2 w-2.5 h-2.5 rounded-full bg-gray-600 group-hover:bg-blue-500 transition-colors"></div>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
-                <h3 className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">Bommaku Constructions</h3>
-                <span className="text-sm font-mono text-gray-500 bg-gray-800/50 px-3 py-1 rounded">Jan 2025 – June 2025</span>
+              <div className="flex-1">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
+                  <h3 className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">Bommaku Constructions</h3>
+                  <span className="text-sm font-mono text-gray-500 bg-gray-800/50 px-3 py-1 rounded mt-2 sm:mt-0 w-fit">Jan 2025 – June 2025</span>
+                </div>
+                <div className="text-blue-400 font-medium mb-4 flex items-center gap-2">
+                  <Briefcase size={16} />
+                  Tech Consultant (Intern)
+                </div>
+                <ul className="space-y-3 text-gray-400 text-sm">
+                  <li className="flex gap-3 items-start">
+                    <ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" />
+                    <span>Supported digital transformation through web, cloud, and visualization solutions.</span>
+                  </li>
+                  <li className="flex gap-3 items-start">
+                    <ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" />
+                    <span>Designed Unreal Engine 5 architectural visualization and optimized website performance.</span>
+                  </li>
+                  <li className="flex gap-3 items-start">
+                    <ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" />
+                    <span>Guided management on adopting cloud technologies for operational efficiency.</span>
+                  </li>
+                </ul>
               </div>
-              <div className="text-blue-400 font-medium mb-4">Tech Consultant (Intern)</div>
-              <ul className="space-y-3 text-gray-400 text-sm">
-                <li className="flex gap-3">
-                  <ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" />
-                  Supported digital transformation through web, cloud, and visualization solutions.
-                </li>
-                <li className="flex gap-3">
-                  <ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" />
-                  Designed Unreal Engine 5 architectural visualization and optimized website performance.
-                </li>
-                <li className="flex gap-3">
-                  <ChevronRight size={16} className="text-blue-500 shrink-0 mt-0.5" />
-                  Guided management on adopting cloud technologies for operational efficiency.
-                </li>
-              </ul>
             </div>
           </div>
         </div>
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="py-20 px-6 max-w-6xl mx-auto">
+      <section id="projects" className="py-20 px-6 max-w-6xl mx-auto bg-[#161b22]/30">
         <div className="flex items-center gap-4 mb-12">
           <h2 className="text-3xl font-bold text-white">Featured Projects</h2>
           <div className="h-px bg-gray-800 flex-grow"></div>
@@ -303,7 +375,7 @@ const Portfolio = () => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Project 1 */}
-          <div className="group bg-[#161b22] border border-gray-800 rounded-xl p-6 hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-900/10 transition-all">
+          <div className="group bg-[#0d1117] border border-gray-800 rounded-xl p-6 hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-900/10 transition-all flex flex-col">
             <div className="flex justify-between items-start mb-6">
               <div className="p-3 bg-blue-900/20 text-blue-400 rounded-lg">
                 <Server size={24} />
@@ -313,7 +385,7 @@ const Portfolio = () => {
               </a>
             </div>
             <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">Terraless Hosting</h3>
-            <p className="text-gray-400 text-sm mb-6 leading-relaxed">
+            <p className="text-gray-400 text-sm mb-6 leading-relaxed flex-grow">
               Minecraft server hosting platform using AWS EC2 Spot Instances and Lambda. Features a full serverless backend architecture for cost optimization.
             </p>
             <div className="flex flex-wrap gap-2 mt-auto">
@@ -326,7 +398,7 @@ const Portfolio = () => {
           </div>
 
           {/* Project 2 */}
-          <div className="group bg-[#161b22] border border-gray-800 rounded-xl p-6 hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-900/10 transition-all">
+          <div className="group bg-[#0d1117] border border-gray-800 rounded-xl p-6 hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-900/10 transition-all flex flex-col">
             <div className="flex justify-between items-start mb-6">
               <div className="p-3 bg-purple-900/20 text-purple-400 rounded-lg">
                 <Globe size={24} />
@@ -336,7 +408,7 @@ const Portfolio = () => {
               </a>
             </div>
             <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">Idha Art Stay</h3>
-            <p className="text-gray-400 text-sm mb-6 leading-relaxed">
+            <p className="text-gray-400 text-sm mb-6 leading-relaxed flex-grow">
               Production-grade client website with automated build pipelines. Integrated Sanity CMS and deployed to Cloudflare with global CDN caching.
             </p>
             <div className="flex flex-wrap gap-2 mt-auto">
@@ -349,14 +421,14 @@ const Portfolio = () => {
           </div>
 
           {/* Project 3 */}
-          <div className="group bg-[#161b22] border border-gray-800 rounded-xl p-6 hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-900/10 transition-all">
+          <div className="group bg-[#0d1117] border border-gray-800 rounded-xl p-6 hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-900/10 transition-all flex flex-col">
             <div className="flex justify-between items-start mb-6">
               <div className="p-3 bg-green-900/20 text-green-400 rounded-lg">
                 <Database size={24} />
               </div>
             </div>
             <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">Smart Hotel Sys</h3>
-            <p className="text-gray-400 text-sm mb-6 leading-relaxed">
+            <p className="text-gray-400 text-sm mb-6 leading-relaxed flex-grow">
               Full-stack modernization project. Containerized application, set up CI/CD, and integrated ELK Stack for log management.
             </p>
             <div className="flex flex-wrap gap-2 mt-auto">
@@ -370,76 +442,34 @@ const Portfolio = () => {
         </div>
       </section>
 
-      {/* Skills Section */}
-      <section id="skills" className="py-20 bg-[#161b22]/50 border-t border-gray-800">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="flex items-center gap-4 mb-12">
-            <h2 className="text-3xl font-bold text-white">Technical Arsenal</h2>
-            <div className="h-px bg-gray-800 flex-grow"></div>
-          </div>
+      {/* Infinite Logo Slider (Tech Arsenal) */}
+      <section id="skills" className="py-16 bg-[#0d1117] border-y border-gray-800 overflow-hidden">
+        <div className="max-w-6xl mx-auto px-6 mb-8">
+          <h2 className="text-3xl font-bold text-white">Tech Arsenal</h2>
+          <div className="h-px bg-gray-800 mt-4"></div>
+        </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="space-y-8">
-              <div>
-                <div className="flex items-center gap-2 mb-4 text-blue-400">
-                  <Cloud size={20} />
-                  <h3 className="font-bold text-white">Cloud Architecture</h3>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {skills.cloud.map(skill => (
-                    <span key={skill} className="px-3 py-1.5 bg-[#0d1117] border border-gray-800 rounded text-sm text-gray-300 hover:border-blue-500 transition-colors cursor-default">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-4 text-green-400">
-                  <Server size={20} />
-                  <h3 className="font-bold text-white">DevOps & CICD</h3>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {skills.devops.map(skill => (
-                    <span key={skill} className="px-3 py-1.5 bg-[#0d1117] border border-gray-800 rounded text-sm text-gray-300 hover:border-green-500 transition-colors cursor-default">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-8">
-              <div>
-                <div className="flex items-center gap-2 mb-4 text-purple-400">
-                  <Code size={20} />
-                  <h3 className="font-bold text-white">Backend & Scripting</h3>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {skills.backend.map(skill => (
-                    <span key={skill} className="px-3 py-1.5 bg-[#0d1117] border border-gray-800 rounded text-sm text-gray-300 hover:border-purple-500 transition-colors cursor-default">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-4 text-yellow-400">
-                  <Cpu size={20} />
-                  <h3 className="font-bold text-white">Frontend & Tools</h3>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {skills.frontend.map(skill => (
-                    <span key={skill} className="px-3 py-1.5 bg-[#0d1117] border border-gray-800 rounded text-sm text-gray-300 hover:border-yellow-500 transition-colors cursor-default">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
+        {/* Row 1: Infrastructure & Cloud (Scrolling Left) */}
+        <div className="relative flex overflow-hidden mb-6">
+          <div className="flex animate-scroll hover:pause-on-hover gap-6 px-3 w-max">
+            {[...infraStack, ...infraStack, ...infraStack].map((tech, i) => (
+              <TechBadge key={`infra-${i}`} {...tech} />
+            ))}
           </div>
         </div>
+
+        {/* Row 2: Development & Data (Scrolling Right) */}
+        <div className="relative flex overflow-hidden">
+          <div className="flex animate-scroll-reverse hover:pause-on-hover gap-6 px-3 w-max">
+            {[...devStack, ...devStack, ...devStack].map((tech, i) => (
+              <TechBadge key={`dev-${i}`} {...tech} />
+            ))}
+          </div>
+        </div>
+        
+        {/* Gradients for fading edges */}
+        <div className="absolute left-0 top-0 w-24 h-full bg-gradient-to-r from-[#0d1117] to-transparent pointer-events-none"></div>
+        <div className="absolute right-0 top-0 w-24 h-full bg-gradient-to-l from-[#0d1117] to-transparent pointer-events-none"></div>
       </section>
 
       {/* Certifications Section */}
