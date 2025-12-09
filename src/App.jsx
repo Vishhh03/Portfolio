@@ -12,7 +12,8 @@ import {
   Mail, 
   MapPin, 
   ChevronRight,
-  Globe
+  Globe,
+  Award
 } from 'lucide-react';
 
 const Portfolio = () => {
@@ -51,7 +52,7 @@ const Portfolio = () => {
             <span>~/vishal-shaji</span>
           </div>
           <div className="hidden md:flex gap-8 text-sm font-medium">
-            {['About', 'Experience', 'Projects', 'Skills'].map((item) => (
+            {['About', 'Experience', 'Projects', 'Skills', 'Certifications'].map((item) => (
               <button 
                 key={item}
                 onClick={() => scrollToSection(item.toLowerCase())}
@@ -351,6 +352,60 @@ const Portfolio = () => {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Certifications Section */}
+      <section id="certifications" className="py-20 px-6 max-w-6xl mx-auto">
+        <div className="flex items-center gap-4 mb-12">
+          <h2 className="text-3xl font-bold text-white">Certifications</h2>
+          <div className="h-px bg-gray-800 flex-grow"></div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+            {/* AWS */}
+            <div className="bg-[#161b22] border border-gray-800 rounded-xl p-6 flex items-start gap-4 hover:border-blue-500/50 transition-colors group">
+                <div className="p-3 bg-blue-900/20 text-blue-400 rounded-lg shrink-0 group-hover:text-blue-300">
+                    <Cloud size={24} />
+                </div>
+                <div>
+                    <h3 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors">AWS Certified Cloud Practitioner</h3>
+                    <p className="text-gray-400 text-sm mt-1">Amazon Web Services • 2024</p>
+                </div>
+            </div>
+
+            {/* OCI Associate Architect */}
+             <div className="bg-[#161b22] border border-gray-800 rounded-xl p-6 flex items-start gap-4 hover:border-red-500/50 transition-colors group">
+                <div className="p-3 bg-red-900/20 text-red-400 rounded-lg shrink-0 group-hover:text-red-300">
+                    <Award size={24} />
+                </div>
+                <div>
+                    <h3 className="text-lg font-bold text-white group-hover:text-red-400 transition-colors">OCI Associate Architect</h3>
+                    <p className="text-gray-400 text-sm mt-1">Oracle Cloud Infrastructure</p>
+                </div>
+            </div>
+            
+            {/* OCI Foundational Associate */}
+             <div className="bg-[#161b22] border border-gray-800 rounded-xl p-6 flex items-start gap-4 hover:border-red-500/50 transition-colors group">
+                <div className="p-3 bg-red-900/20 text-red-400 rounded-lg shrink-0 group-hover:text-red-300">
+                    <Award size={24} />
+                </div>
+                <div>
+                    <h3 className="text-lg font-bold text-white group-hover:text-red-400 transition-colors">OCI Foundational Associate</h3>
+                    <p className="text-gray-400 text-sm mt-1">Oracle Cloud Infrastructure</p>
+                </div>
+            </div>
+
+             {/* OCI Foundational AI */}
+             <div className="bg-[#161b22] border border-gray-800 rounded-xl p-6 flex items-start gap-4 hover:border-red-500/50 transition-colors group">
+                <div className="p-3 bg-red-900/20 text-red-400 rounded-lg shrink-0 group-hover:text-red-300">
+                    <Cpu size={24} />
+                </div>
+                <div>
+                    <h3 className="text-lg font-bold text-white group-hover:text-red-400 transition-colors">OCI Foundational AI</h3>
+                    <p className="text-gray-400 text-sm mt-1">Oracle Cloud Infrastructure</p>
+                </div>
+            </div>
         </div>
       </section>
 
