@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Terminal, 
   Cloud, 
@@ -13,26 +13,78 @@ import {
   MapPin, 
   ChevronRight,
   Globe,
-  Award
+  Award,
+  Activity,
+  HardDrive,
+  Box
 } from 'lucide-react';
 
 const Portfolio = () => {
   const [activeSection, setActiveSection] = useState('home');
-  const [typedText, setTypedText] = useState('');
-  const fullText = "deploying_infrastructure...";
+  
+  // --- DevOps Monitor State ---
+  const [metrics, setMetrics] = useState({ cpu: 15, memory: 42, uptime: 99.98 });
+  const [logs, setLogs] = useState([
+    { time: '00:01', msg: 'Initializing system boot sequence...' },
+    { time: '00:02', msg: 'Loading kernel modules: AWS, Docker, Terraform...' },
+  ]);
+  const logContainerRef = useRef(null); // Changed to container ref for isolated scrolling
 
+  // Simulated Live Metrics
   useEffect(() => {
-    if (typedText.length < fullText.length) {
-      const timeout = setTimeout(() => {
-        setTypedText(fullText.slice(0, typedText.length + 1));
-      }, 100);
-      return () => clearTimeout(timeout);
+    const interval = setInterval(() => {
+      setMetrics(prev => ({
+        cpu: Math.min(100, Math.max(5, prev.cpu + (Math.random() * 10 - 5))),
+        memory: Math.min(100, Math.max(20, prev.memory + (Math.random() * 4 - 2))),
+        uptime: prev.uptime
+      }));
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Simulated Boot Logs
+  useEffect(() => {
+    const logSequence = [
+      "Connecting to ap-south-1 region...",
+      "Fetching configuration from S3 bucket...",
+      "[SUCCESS] IAM Roles validated.",
+      "Starting container orchestration...",
+      "[INFO] Pod 'portfolio-v1' scheduled on node-01.",
+      "Pulling image: vishal/portfolio:latest...",
+      "[SUCCESS] Image pulled in 1.2s",
+      "Mounting persistent volumes...",
+      "Starting Nginx reverse proxy...",
+      "[INFO] Health check passed: HTTP 200 OK",
+      "System ready. Listening on port 443."
+    ];
+
+    let index = 0;
+    const interval = setInterval(() => {
+      if (index < logSequence.length) {
+        const now = new Date();
+        const timeString = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+        
+        setLogs(prev => [...prev.slice(-6), { time: timeString, msg: logSequence[index] }]); // Keep last 7 logs
+        index++;
+      }
+    }, 1200);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Auto-scroll logs - FIXED: Uses scrollTop on container instead of window scroll
+  useEffect(() => {
+    if (logContainerRef.current) {
+      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
     }
-  }, [typedText]);
+  }, [logs]);
 
   const scrollToSection = (id) => {
     setActiveSection(id);
-    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const skills = {
@@ -71,8 +123,8 @@ const Portfolio = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section id="home" className="pt-32 pb-20 px-6 max-w-6xl mx-auto">
+      {/* Hero Section - ID Changed to 'about' to match navigation */}
+      <section id="about" className="pt-32 pb-20 px-6 max-w-6xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-900/20 text-blue-400 text-xs font-mono mb-6 border border-blue-900/50">
@@ -103,45 +155,80 @@ const Portfolio = () => {
             </div>
           </div>
 
-          {/* Terminal Window */}
+          {/* Enhanced DevOps Control Panel */}
           <div className="bg-[#161b22] rounded-xl border border-gray-800 shadow-2xl overflow-hidden font-mono text-sm">
-            <div className="bg-[#0d1117] px-4 py-2 border-b border-gray-800 flex gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
-              <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-              <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+            {/* Window Controls */}
+            <div className="bg-[#0d1117] px-4 py-2 border-b border-gray-800 flex justify-between items-center">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+              </div>
+              <div className="text-xs text-gray-500">root@vishal-monitor:~</div>
             </div>
-            <div className="p-6 space-y-4">
-              <div className="flex gap-2 text-green-400">
+
+            {/* Dashboard Stats */}
+            <div className="grid grid-cols-3 gap-px bg-gray-800 border-b border-gray-800">
+              <div className="bg-[#161b22] p-4">
+                <div className="flex items-center gap-2 text-gray-400 text-xs mb-1">
+                  <Activity size={14} className="text-blue-400" />
+                  CPU Load
+                </div>
+                <div className="text-lg font-bold text-white">{metrics.cpu.toFixed(1)}%</div>
+                <div className="w-full bg-gray-800 h-1 mt-2 rounded-full overflow-hidden">
+                  <div className="bg-blue-500 h-full transition-all duration-500" style={{ width: `${metrics.cpu}%` }}></div>
+                </div>
+              </div>
+              <div className="bg-[#161b22] p-4">
+                <div className="flex items-center gap-2 text-gray-400 text-xs mb-1">
+                  <HardDrive size={14} className="text-purple-400" />
+                  Memory
+                </div>
+                <div className="text-lg font-bold text-white">{metrics.memory.toFixed(1)}%</div>
+                 <div className="w-full bg-gray-800 h-1 mt-2 rounded-full overflow-hidden">
+                  <div className="bg-purple-500 h-full transition-all duration-500" style={{ width: `${metrics.memory}%` }}></div>
+                </div>
+              </div>
+              <div className="bg-[#161b22] p-4">
+                <div className="flex items-center gap-2 text-gray-400 text-xs mb-1">
+                  <Box size={14} className="text-green-400" />
+                  Containers
+                </div>
+                <div className="text-lg font-bold text-white">5 Active</div>
+                <div className="flex gap-1 mt-2">
+                  {[1,2,3,4,5].map(i => (
+                    <div key={i} className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Live Logs - FIXED: Added ref to container for scrollTop control */}
+            <div 
+              ref={logContainerRef}
+              className="p-4 h-48 overflow-y-auto font-mono text-xs space-y-2 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent"
+            >
+               {logs.map((log, i) => (
+                 <div key={i} className="flex gap-3">
+                   <span className="text-gray-500 shrink-0">[{log.time}]</span>
+                   <span className={log.msg.includes('SUCCESS') ? 'text-green-400' : log.msg.includes('INFO') ? 'text-blue-400' : 'text-gray-300'}>
+                     {log.msg}
+                   </span>
+                 </div>
+               ))}
+               <div className="flex gap-2 items-center text-blue-400 animate-pulse">
                 <span>➜</span>
-                <span>~</span>
-                <span className="text-white">init_portfolio.sh</span>
+                <span className="w-2 h-4 bg-blue-400 block"></span>
               </div>
-              <div className="text-gray-400 pl-4">
-                Initializing environment...<br/>
-                Loading modules: AWS, Docker, Terraform...<br/>
-                <span className="text-blue-400">{typedText}</span><span className="animate-pulse">_</span>
-              </div>
-              
-              <div className="border-t border-gray-800 my-4"></div>
-              
-              <div className="grid grid-cols-2 gap-4 text-xs">
-                <div>
-                  <span className="text-gray-500">Current Role</span>
-                  <div className="text-white mt-1">DevOps Engineer @ Cognizant</div>
-                </div>
-                <div>
-                  <span className="text-gray-500">Location</span>
-                  <div className="text-white mt-1">Kochi, India</div>
-                </div>
-                <div>
-                  <span className="text-gray-500">Education</span>
-                  <div className="text-white mt-1">B.Tech Civil (Minor in ML)</div>
-                </div>
-                <div>
-                  <span className="text-gray-500">Focus</span>
-                  <div className="text-white mt-1">Cloud Architecture</div>
-                </div>
-              </div>
+            </div>
+            
+            {/* Status Footer */}
+            <div className="bg-[#0d1117] border-t border-gray-800 px-4 py-2 flex justify-between text-xs text-gray-500">
+               <div>Region: <span className="text-gray-300">ap-south-1</span></div>
+               <div className="flex items-center gap-2">
+                 <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                 System Operational
+               </div>
             </div>
           </div>
         </div>
