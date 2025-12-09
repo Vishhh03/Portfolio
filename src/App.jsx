@@ -211,7 +211,7 @@ const Portfolio = () => {
                {logs.map((log, i) => (
                  <div key={i} className="flex gap-3">
                    <span className="text-gray-500 shrink-0">[{log.time}]</span>
-                   <span className={log.msg.includes('SUCCESS') ? 'text-green-400' : log.msg.includes('INFO') ? 'text-blue-400' : 'text-gray-300'}>
+                   <span className={(log.msg || '').includes('SUCCESS') ? 'text-green-400' : (log.msg || '').includes('INFO') ? 'text-blue-400' : 'text-gray-300'}>
                      {log.msg}
                    </span>
                  </div>
