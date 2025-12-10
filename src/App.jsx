@@ -39,14 +39,56 @@ const marqueeStyle = `
   }
 `;
 
+// --- Tech Stack Data (Moved outside component for stability) ---
+const infraStack = [
+  { name: 'aws', color: 'FF9900', label: 'AWS', customUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg' },
+  { name: 'docker', color: '2496ED', label: 'Docker' },
+  { name: 'kubernetes', color: '326CE5', label: 'Kubernetes' },
+  { name: 'terraform', color: '7B42BC', label: 'Terraform' },
+  { name: 'jenkins', color: 'D24939', label: 'Jenkins' },
+  { name: 'githubactions', color: '2088FF', label: 'GitHub Actions' },
+  { name: 'prometheus', color: 'E6522C', label: 'Prometheus' },
+  { name: 'grafana', color: 'F46800', label: 'Grafana' },
+  { name: 'linux', color: 'FCC624', label: 'Linux' },
+  { name: 'elastic', color: '005571', label: 'ELK Stack' },
+];
+
+const devStack = [
+  { name: 'python', color: '3776AB', label: 'Python' },
+  { name: 'dotnet', color: '512BD4', label: '.NET Core' },
+  { name: 'react', color: '61DAFB', label: 'React' },
+  { name: 'angular', color: 'DD0031', label: 'Angular' },
+  { name: 'nextdotjs', color: 'white', label: 'Next.js' },
+  { name: 'postgresql', color: '4169E1', label: 'PostgreSQL' },
+  { name: 'mongodb', color: '47A248', label: 'MongoDB' },
+  { name: 'csharp', color: '239120', label: 'C#', customUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg' },
+  { name: 'typescript', color: '3178C6', label: 'TypeScript' },
+];
+
 // --- Tech Icon Component (For Marquee) ---
-const TechBadge = ({ name, color, label, customUrl }) => {
+const TechBadge = ({ name, color, label, customUrl, isActive }) => {
   const iconUrl = customUrl || `https://cdn.simpleicons.org/${name}/${color}`;
   
   return (
-    <div className="flex items-center gap-2 px-4 py-2 bg-[#161b22] border border-gray-800/60 rounded-full shrink-0 grayscale hover:grayscale-0 hover:border-gray-700 transition-all duration-300 cursor-default group">
-      <img src={iconUrl} alt={label} className="w-5 h-5 group-hover:scale-110 transition-transform" />
-      <span className="text-sm font-medium text-gray-400 group-hover:text-white">{label}</span>
+    <div 
+      className={`
+        flex items-center gap-2 px-4 py-2 bg-[#161b22] border rounded-full shrink-0 
+        transition-all duration-500 cursor-default group
+        ${isActive 
+          ? 'grayscale-0 border-gray-500 scale-110 shadow-[0_0_15px_rgba(59,130,246,0.3)]' 
+          : 'border-gray-800/60 grayscale hover:grayscale-0 hover:border-gray-700 hover:scale-105'}
+      `}
+    >
+      <img 
+        src={iconUrl} 
+        alt={label} 
+        className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} 
+      />
+      <span 
+        className={`text-sm font-medium transition-colors duration-300 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-white'}`}
+      >
+        {label}
+      </span>
     </div>
   );
 };
@@ -153,6 +195,10 @@ const Portfolio = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [previewProject, setPreviewProject] = useState(null);
   
+  // State for random icon highlighting
+  const [activeInfraIndex, setActiveInfraIndex] = useState(null);
+  const [activeDevIndex, setActiveDevIndex] = useState(null);
+  
   // --- DevOps Monitor State ---
   const [metrics, setMetrics] = useState({ cpu: 15, memory: 42, uptime: 99.98 });
   const [logs, setLogs] = useState([
@@ -199,6 +245,34 @@ const Portfolio = () => {
     existingFavicons.forEach(e => e.remove());
     
     document.getElementsByTagName('head')[0].appendChild(link);
+  }, []);
+
+  // --- Random Tech Highlight Logic ---
+  useEffect(() => {
+    // Random flicker for Infra Stack (Top Row)
+    const infraInterval = setInterval(() => {
+      // 3 because we duplicate the array 3 times for the marquee
+      const totalItems = infraStack.length * 3;
+      const idx = Math.floor(Math.random() * totalItems);
+      setActiveInfraIndex(idx);
+      
+      // Turn off after a short duration
+      setTimeout(() => setActiveInfraIndex(null), 2000);
+    }, 2500);
+
+    // Random flicker for Dev Stack (Bottom Row)
+    const devInterval = setInterval(() => {
+      const totalItems = devStack.length * 3;
+      const idx = Math.floor(Math.random() * totalItems);
+      setActiveDevIndex(idx);
+      
+      setTimeout(() => setActiveDevIndex(null), 2000);
+    }, 3500);
+
+    return () => {
+      clearInterval(infraInterval);
+      clearInterval(devInterval);
+    };
   }, []);
 
   // Simulated Live Metrics
@@ -258,39 +332,14 @@ const Portfolio = () => {
     }
   };
 
-  // --- Tech Stack Data ---
-  const infraStack = [
-    { name: 'aws', color: 'FF9900', label: 'AWS', customUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg' },
-    { name: 'docker', color: '2496ED', label: 'Docker' },
-    { name: 'kubernetes', color: '326CE5', label: 'Kubernetes' },
-    { name: 'terraform', color: '7B42BC', label: 'Terraform' },
-    { name: 'jenkins', color: 'D24939', label: 'Jenkins' },
-    { name: 'githubactions', color: '2088FF', label: 'GitHub Actions' },
-    { name: 'prometheus', color: 'E6522C', label: 'Prometheus' },
-    { name: 'grafana', color: 'F46800', label: 'Grafana' },
-    { name: 'linux', color: 'FCC624', label: 'Linux' },
-    { name: 'elastic', color: '005571', label: 'ELK Stack' },
-  ];
-
-  const devStack = [
-    { name: 'python', color: '3776AB', label: 'Python' },
-    { name: 'dotnet', color: '512BD4', label: '.NET Core' },
-    { name: 'react', color: '61DAFB', label: 'React' },
-    { name: 'angular', color: 'DD0031', label: 'Angular' },
-    { name: 'nextdotjs', color: 'white', label: 'Next.js' },
-    { name: 'postgresql', color: '4169E1', label: 'PostgreSQL' },
-    { name: 'mongodb', color: '47A248', label: 'MongoDB' },
-    { name: 'csharp', color: '239120', label: 'C#', customUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg' },
-    { name: 'typescript', color: '3178C6', label: 'TypeScript' },
-  ];
-
   // --- EXPERIENCE DATA (With Logo Support) ---
   const experiences = [
     {
       company: "Cognizant Technology Solutions",
       role: "Programmer Analyst Trainee",
       period: "July 2025 – Present",
-      // logo: "/path/to/logo.png", // <--- ADD YOUR LOGO HERE
+      // Uncomment the line below and add your image path
+      // logo: "/images/cognizant-logo.png", 
       defaultColor: "blue",
       details: [
         "Led a 5-member team modernizing a full-stack web platform while integrating DevOps practices.",
@@ -302,7 +351,8 @@ const Portfolio = () => {
       company: "Bommaku Constructions",
       role: "Tech Consultant (Intern)",
       period: "Jan 2025 – June 2025",
-      // logo: "/path/to/logo.png", // <--- ADD YOUR LOGO HERE
+      // Uncomment the line below and add your image path
+      // logo: "/images/bommaku-logo.png",
       defaultColor: "orange",
       details: [
         "Supported digital transformation through web, cloud, and visualization solutions.",
@@ -317,7 +367,8 @@ const Portfolio = () => {
     {
       title: "Terraless Hosting",
       desc: "Minecraft server hosting platform using AWS EC2 Spot Instances and Lambda. Features a full serverless backend architecture for cost optimization.",
-      // logo: "/path/to/project-logo.png", // <--- ADD YOUR LOGO HERE
+      // Uncomment the line below and add your image path
+      // logo: "/images/terraless-logo.png",
       details: [
         "Developed Next.js application with a full serverless backend architecture.",
         "Automated backend workflows via AWS Lambda, IAM, DynamoDB, and Cognito.",
@@ -325,9 +376,9 @@ const Portfolio = () => {
       ],
       techs: [
         { label: 'Next.js', iconKey: 'nextdotjs', color: 'white' },
-        { label: 'AWS', iconKey: 'amazonwebservices', color: 'FF9900', customUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original.svg' },
-        { label: 'DynamoDB', iconKey: 'dynamodb', color: '4053D6', customUrl: 'https://cdn.simpleicons.org/amazonaws/4053D6' }, 
-        { label: 'Cognito', iconKey: 'cognito', color: 'DD344C', customUrl: 'https://cdn.simpleicons.org/amazonaws/DD344C' }
+        { label: 'AWS', iconKey: 'amazonwebservices', color: 'FF9900', customUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg' },
+        { label: 'DynamoDB', iconKey: 'dynamodb', color: '4053D6', customUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/dynamodb/dynamodb-original.svg' }, 
+        { label: 'Cognito', iconKey: 'cognito', color: 'DD344C', customUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original.svg' }
       ],
       link: "https://terraless.com",
       icon: Server,
@@ -336,7 +387,8 @@ const Portfolio = () => {
     {
       title: "Idha Art Stay",
       desc: "Production-grade client website with automated build pipelines. Integrated Sanity CMS and deployed to Cloudflare with global CDN caching.",
-      // logo: "/path/to/project-logo.png", // <--- ADD YOUR LOGO HERE
+      // Uncomment the line below and add your image path
+      // logo: "/images/idha-logo.png",
       details: [
         "Built a responsive Next.js + Sanity CMS frontend for an art homestay business.",
         "Set up CI/CD pipelines using GitHub Actions for deployment to Cloudflare.",
@@ -355,7 +407,8 @@ const Portfolio = () => {
     {
       title: "Smart Hotel Sys",
       desc: "Full-stack modernization project. Containerized application, set up CI/CD, and integrated ELK Stack for log management.",
-      // logo: "/path/to/project-logo.png", // <--- ADD YOUR LOGO HERE
+      // Uncomment the line below and add your image path
+      // logo: "/images/smart-hotel-logo.png",
       details: [
         "Developed Smart Hotel Management System (Angular + .NET + SQL Server).",
         "Containerized the application using Docker and implemented Github Actions CI/CD.",
@@ -365,7 +418,7 @@ const Portfolio = () => {
         { label: 'Angular', iconKey: 'angular', color: 'DD0031' },
         { label: '.NET Core', iconKey: 'dotnet', color: '512BD4' },
         { label: 'Docker', iconKey: 'docker', color: '2496ED' },
-        { label: 'SQL Server', iconKey: 'microsoftsqlserver', color: 'CC2927' }
+        { label: 'SQL Server', iconKey: 'microsoftsqlserver', color: 'CC2927', customUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/microsoftsqlserver/microsoftsqlserver-plain.svg' }
       ],
       link: null, 
       icon: Database,
@@ -568,14 +621,14 @@ const Portfolio = () => {
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="py-20 px-6 max-w-7xl mx-auto bg-[#161b22]/30">
+      <section id="projects" className="py-20 px-6 max-w-6xl mx-auto bg-[#161b22]/30">
         <div className="flex items-center gap-4 mb-12">
           <h2 className="text-3xl font-bold text-white">Featured Projects</h2>
           <div className="h-px bg-gray-800 flex-grow"></div>
         </div>
 
-        {/* Flex Container for Accordion Effect - Using justify-start to pack content at top */}
-        <div className="flex flex-col lg:flex-row gap-4">
+        {/* Flex Container for Accordion Effect - Using justify-start (default but explicit for clarity) and items-start to remove vertical stretch */}
+        <div className="flex flex-col lg:flex-row gap-4 items-start">
           {projects.map((project, idx) => (
             <div 
               key={idx} 
@@ -686,7 +739,7 @@ const Portfolio = () => {
         <div className="relative flex overflow-hidden mb-6">
           <div className="flex animate-scroll hover:pause-on-hover gap-6 px-3 w-max">
             {[...infraStack, ...infraStack, ...infraStack].map((tech, i) => (
-              <TechBadge key={`infra-${i}`} {...tech} />
+              <TechBadge key={`infra-${i}`} {...tech} isActive={i === activeInfraIndex} />
             ))}
           </div>
         </div>
@@ -695,7 +748,7 @@ const Portfolio = () => {
         <div className="relative flex overflow-hidden">
           <div className="flex animate-scroll-reverse hover:pause-on-hover gap-6 px-3 w-max">
             {[...devStack, ...devStack, ...devStack].map((tech, i) => (
-              <TechBadge key={`dev-${i}`} {...tech} />
+              <TechBadge key={`dev-${i}`} {...tech} isActive={i === activeDevIndex} />
             ))}
           </div>
         </div>
