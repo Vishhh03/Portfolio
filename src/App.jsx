@@ -19,7 +19,9 @@ import {
   X,
   Maximize2,
   Loader2,
-  Eye
+  Eye,
+  Download,
+  FileText
 } from 'lucide-react';
 
 // --- Marquee Styles ---
@@ -195,9 +197,13 @@ const Portfolio = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [previewProject, setPreviewProject] = useState(null);
   
-  // State for random icon highlighting
-  const [activeInfraIndex, setActiveInfraIndex] = useState(null);
-  const [activeDevIndex, setActiveDevIndex] = useState(null);
+  // State for random icon highlighting (Using Name instead of Index for better visibility)
+  const [activeInfraName, setActiveInfraName] = useState(null);
+  const [activeDevName, setActiveDevName] = useState(null);
+
+  // NEW STATE: Track the SPECIFIC project being hovered
+  const [hoveredProject, setHoveredProject] = useState(null);
+  const isAnyProjectHovered = hoveredProject !== null;
   
   // --- DevOps Monitor State ---
   const [metrics, setMetrics] = useState({ cpu: 15, memory: 42, uptime: 99.98 });
@@ -247,26 +253,24 @@ const Portfolio = () => {
     document.getElementsByTagName('head')[0].appendChild(link);
   }, []);
 
-  // --- Random Tech Highlight Logic ---
+  // --- Random Tech Highlight Logic (By Name) ---
   useEffect(() => {
     // Random flicker for Infra Stack (Top Row)
     const infraInterval = setInterval(() => {
-      // 3 because we duplicate the array 3 times for the marquee
-      const totalItems = infraStack.length * 3;
-      const idx = Math.floor(Math.random() * totalItems);
-      setActiveInfraIndex(idx);
+      // Pick a random technology name from the original list
+      const randomTech = infraStack[Math.floor(Math.random() * infraStack.length)];
+      setActiveInfraName(randomTech.name);
       
       // Turn off after a short duration
-      setTimeout(() => setActiveInfraIndex(null), 2000);
+      setTimeout(() => setActiveInfraName(null), 2000);
     }, 2500);
 
     // Random flicker for Dev Stack (Bottom Row)
     const devInterval = setInterval(() => {
-      const totalItems = devStack.length * 3;
-      const idx = Math.floor(Math.random() * totalItems);
-      setActiveDevIndex(idx);
+      const randomTech = devStack[Math.floor(Math.random() * devStack.length)];
+      setActiveDevName(randomTech.name);
       
-      setTimeout(() => setActiveDevIndex(null), 2000);
+      setTimeout(() => setActiveDevName(null), 2000);
     }, 3500);
 
     return () => {
@@ -362,13 +366,13 @@ const Portfolio = () => {
     }
   ];
 
-  // --- PROJECTS DATA (With Logo Support) ---
+  // --- PROJECTS DATA (With Logo Support & Background Images) ---
   const projects = [
     {
       title: "Terraless Hosting",
       desc: "Minecraft server hosting platform using AWS EC2 Spot Instances and Lambda. Features a full serverless backend architecture for cost optimization.",
-      // Uncomment the line below and add your image path
       // logo: "/images/terraless-logo.png",
+      image: "https://images.unsplash.com/photo-1558494949-ef526b0042a0?q=80&w=2070&auto=format&fit=crop", // Server/Data center vibe
       details: [
         "Developed Next.js application with a full serverless backend architecture.",
         "Automated backend workflows via AWS Lambda, IAM, DynamoDB, and Cognito.",
@@ -387,8 +391,8 @@ const Portfolio = () => {
     {
       title: "Idha Art Stay",
       desc: "Production-grade client website with automated build pipelines. Integrated Sanity CMS and deployed to Cloudflare with global CDN caching.",
-      // Uncomment the line below and add your image path
       // logo: "/images/idha-logo.png",
+      image: "https://images.unsplash.com/photo-1561214115-f2f134cc4912?q=80&w=2009&auto=format&fit=crop", // Artistic/Design vibe
       details: [
         "Built a responsive Next.js + Sanity CMS frontend for an art homestay business.",
         "Set up CI/CD pipelines using GitHub Actions for deployment to Cloudflare.",
@@ -407,8 +411,8 @@ const Portfolio = () => {
     {
       title: "Smart Hotel Sys",
       desc: "Full-stack modernization project. Containerized application, set up CI/CD, and integrated ELK Stack for log management.",
-      // Uncomment the line below and add your image path
       // logo: "/images/smart-hotel-logo.png",
+      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop", // Analytics/Dashboard vibe
       details: [
         "Developed Smart Hotel Management System (Angular + .NET + SQL Server).",
         "Containerized the application using Docker and implemented Github Actions CI/CD.",
@@ -456,12 +460,25 @@ const Portfolio = () => {
               </button>
             ))}
           </div>
-          <a 
-            href="mailto:vishshaji03@gmail.com" 
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-all"
-          >
-            Contact Me
-          </a>
+          <div className="flex items-center gap-3">
+             {/* Resume Download Button */}
+             <a 
+              href="/VishalShaji_DevOps.pdf" 
+              download
+              className="hidden md:flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-all text-sm font-medium border border-transparent hover:border-gray-700"
+              title="Download Resume"
+            >
+              <Download size={16} />
+              <span>Resume</span>
+            </a>
+            
+            <a 
+              href="mailto:vishshaji03@gmail.com" 
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-all shadow-lg shadow-blue-900/20 hover:shadow-blue-900/40"
+            >
+              Contact Me
+            </a>
+          </div>
         </div>
       </nav>
 
@@ -493,6 +510,15 @@ const Portfolio = () => {
               </a>
               <a href="mailto:vishshaji03@gmail.com" className="p-3 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors border border-gray-700">
                 <Mail size={24} />
+              </a>
+               {/* Resume Button in Hero (Mobile/Desktop Access) */}
+               <a 
+                href="/VishalShaji_DevOps.pdf" 
+                download 
+                className="p-3 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors border border-gray-700 text-blue-400"
+                title="Download Resume"
+              >
+                <FileText size={24} />
               </a>
             </div>
           </div>
@@ -620,111 +646,155 @@ const Portfolio = () => {
         </div>
       </section>
 
-      {/* Projects Section */}
+      {/* Projects Section - NEW STRUCTURE */}
       <section id="projects" className="py-20 px-6 max-w-6xl mx-auto bg-[#161b22]/30">
         <div className="flex items-center gap-4 mb-12">
           <h2 className="text-3xl font-bold text-white">Featured Projects</h2>
           <div className="h-px bg-gray-800 flex-grow"></div>
         </div>
 
-        {/* Flex Container for Accordion Effect - Using justify-start (default but explicit for clarity) and items-start to remove vertical stretch */}
-        <div className="flex flex-col lg:flex-row gap-4 items-start">
-          {projects.map((project, idx) => (
-            <div 
-              key={idx} 
-              className={`
-                group relative 
-                bg-[#0d1117] border border-gray-800 rounded-2xl overflow-hidden 
-                flex flex-col justify-start
-                transition-all duration-500 ease-in-out
-                w-full lg:w-auto
-                lg:flex-1 lg:hover:flex-[2.5] lg:hover:border-blue-500/50
-                hover:shadow-2xl hover:bg-[#161b22]
-              `}
-            >
-              <div className="p-6 flex flex-col h-full relative z-10">
-                  {/* Header Icons & Logo Support */}
-                  <div className="flex justify-between items-start mb-4">
-                      {project.logo ? (
-                        <div className="w-12 h-12 rounded-xl bg-white overflow-hidden border border-gray-700">
-                          <img src={project.logo} alt={project.title} className="w-full h-full object-cover" />
+        {/* Container handles "Mouse Leave" globally for the section
+            This prevents the jitter/seizure by maintaining a persistent hover state 
+            as long as the mouse is within the general area of cards + image.
+        */}
+        <div 
+          className="flex flex-col gap-6"
+          onMouseLeave={() => setHoveredProject(null)}
+        >
+          {/* Card Row */}
+          <div className="flex flex-col lg:flex-row gap-4 items-start">
+            {projects.map((project, idx) => (
+              <div 
+                key={idx} 
+                onMouseEnter={() => setHoveredProject(project)}
+                className={`
+                  group relative 
+                  bg-[#0d1117] border border-gray-800 rounded-2xl overflow-hidden 
+                  flex flex-col justify-start
+                  transition-all duration-500 ease-in-out
+                  w-full lg:w-auto
+                  lg:flex-1 lg:hover:flex-[2.5] lg:hover:border-blue-500/50
+                  hover:shadow-2xl hover:bg-[#161b22]
+                  ${hoveredProject?.title === project.title ? 'lg:flex-[2.5] border-blue-500/50 bg-[#161b22]' : ''}
+                `}
+              >
+                <div className="p-6 flex flex-col h-full relative z-10">
+                    {/* Header Icons */}
+                    <div className="flex justify-between items-start mb-4">
+                        {project.logo ? (
+                          <div className="w-12 h-12 rounded-xl bg-white overflow-hidden border border-gray-700">
+                            <img src={project.logo} alt={project.title} className="w-full h-full object-cover" />
+                          </div>
+                        ) : (
+                          <div className={`p-3 rounded-xl bg-opacity-20 bg-${project.color}-500`}>
+                              <project.icon size={28} className={`text-${project.color}-400`} />
+                          </div>
+                        )}
+                    </div>
+
+                    {/* Title & Desc */}
+                    <div className="mb-4">
+                        <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors whitespace-nowrap">
+                            {project.title}
+                        </h3>
+                        <p className="text-gray-400 leading-relaxed lg:group-hover:line-clamp-none transition-all duration-300">
+                            {project.desc}
+                        </p>
+                    </div>
+
+                    {/* Bullet Points - Logic: Hide if ANY project is hovered */}
+                    <div className={`
+                      transition-all duration-500 ease-in-out overflow-hidden
+                      ${isAnyProjectHovered ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'} 
+                    `}>
+                      <ul className="space-y-2 mb-4">
+                        {project.details.map((detail, i) => (
+                          <li key={i} className="flex gap-2 text-sm text-gray-400">
+                            <ChevronRight size={14} className="text-blue-500 shrink-0 mt-1" />
+                            <span className="leading-relaxed">{detail}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Tech Pills & Buttons - Logic: Show ONLY on specific hovered card */}
+                    <div className={`
+                        flex flex-col justify-end transition-all duration-500 ease-in-out overflow-hidden
+                        ${hoveredProject?.title === project.title ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'}
+                    `}>
+                        <div className="flex flex-wrap gap-2 mb-6">
+                            {project.techs.map((tech, tIdx) => (
+                              <ProjectTechPill 
+                                key={tIdx} 
+                                label={tech.label} 
+                                iconKey={tech.iconKey} 
+                                color={tech.color}
+                                customUrl={tech.customUrl}
+                              />
+                            ))}
                         </div>
-                      ) : (
-                        <div className={`p-3 rounded-xl bg-opacity-20 bg-${project.color}-500`}>
-                            <project.icon size={28} className={`text-${project.color}-400`} />
-                        </div>
-                      )}
-                  </div>
 
-                  {/* Title & Desc */}
-                  <div className="mb-4">
-                      <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors whitespace-nowrap">
-                          {project.title}
-                      </h3>
-                      <p className="text-gray-400 leading-relaxed lg:group-hover:line-clamp-none transition-all duration-300">
-                          {project.desc}
-                      </p>
-                  </div>
-
-                  {/* Bullet Points (Visible PRE-hover, Hidden POST-hover) */}
-                  <div className="transition-all duration-500 ease-in-out max-h-[500px] opacity-100 lg:group-hover:max-h-0 lg:group-hover:opacity-0 overflow-hidden">
-                    <ul className="space-y-2 mb-4">
-                      {project.details.map((detail, i) => (
-                        <li key={i} className="flex gap-2 text-sm text-gray-400">
-                          <ChevronRight size={14} className="text-blue-500 shrink-0 mt-1" />
-                          <span className="leading-relaxed">{detail}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Tech Stack Pills & Buttons (Hidden PRE-hover, Visible POST-hover) */}
-                  <div className="flex flex-col justify-end transition-all duration-500 ease-in-out max-h-0 opacity-0 lg:group-hover:max-h-[300px] lg:group-hover:opacity-100 overflow-hidden">
-                      <div className="flex flex-wrap gap-2 mb-6">
-                          {project.techs.map((tech, tIdx) => (
-                            <ProjectTechPill 
-                              key={tIdx} 
-                              label={tech.label} 
-                              iconKey={tech.iconKey} 
-                              color={tech.color}
-                              customUrl={tech.customUrl}
-                            />
-                          ))}
-                      </div>
-
-                      <div className="flex flex-col sm:flex-row gap-3">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setPreviewProject(project);
-                            }}
-                            className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-900/20"
-                          >
-                            <Eye size={18} />
-                            <span className="whitespace-nowrap">Live Preview</span>
-                          </button>
-                          
-                          {project.link ? (
-                              <a 
-                                href={project.link} 
-                                target="_blank" 
-                                rel="noreferrer"
-                                className="flex-1 px-4 py-3 bg-[#0d1117] border border-gray-700 hover:border-gray-500 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-all hover:bg-gray-800"
-                              >
-                                <ExternalLink size={18} />
-                                <span className="whitespace-nowrap">Visit Site</span>
-                              </a>
-                          ) : (
-                              <button disabled className="flex-1 px-4 py-3 bg-gray-900/50 border border-gray-800 text-gray-500 rounded-lg font-medium flex items-center justify-center gap-2 cursor-not-allowed">
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setPreviewProject(project);
+                              }}
+                              className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-900/20"
+                            >
+                              <Eye size={18} />
+                              <span className="whitespace-nowrap">Live Preview</span>
+                            </button>
+                            
+                            {project.link ? (
+                                <a 
+                                  href={project.link} 
+                                  target="_blank" 
+                                  rel="noreferrer"
+                                  className="flex-1 px-4 py-3 bg-[#0d1117] border border-gray-700 hover:border-gray-500 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-all hover:bg-gray-800"
+                                >
                                   <ExternalLink size={18} />
-                                  <span className="whitespace-nowrap">Internal Only</span>
-                              </button>
-                          )}
-                      </div>
-                  </div>
+                                  <span className="whitespace-nowrap">Visit Site</span>
+                                </a>
+                            ) : (
+                                <button disabled className="flex-1 px-4 py-3 bg-gray-900/50 border border-gray-800 text-gray-500 rounded-lg font-medium flex items-center justify-center gap-2 cursor-not-allowed">
+                                    <ExternalLink size={18} />
+                                    <span className="whitespace-nowrap">Internal Only</span>
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
               </div>
+            ))}
+          </div>
+
+          {/* Dynamic Image Footer - Acts as visual filler & safety buffer for mouse events */}
+          <div className={`
+              hidden lg:flex w-full overflow-hidden rounded-2xl border border-gray-800 bg-[#0d1117] relative
+              transition-all duration-500 ease-in-out
+              ${isAnyProjectHovered ? 'h-64 opacity-100 mt-2' : 'h-0 opacity-0 mt-0'}
+            `}>
+               {/* Background Images Layer */}
+               {projects.map((p) => (
+                 <img
+                   key={p.title}
+                   src={p.image}
+                   alt={p.title}
+                   className={`
+                     absolute inset-0 w-full h-full object-cover transition-opacity duration-700
+                     ${hoveredProject?.title === p.title ? 'opacity-40' : 'opacity-0'}
+                   `}
+                 />
+               ))}
+               
+               {/* Overlay Title */}
+               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <h3 className={`text-4xl font-bold text-white tracking-widest uppercase transition-all duration-500 ${isAnyProjectHovered ? 'translate-y-0 opacity-20' : 'translate-y-10 opacity-0'}`}>
+                    {hoveredProject?.title || 'Projects'}
+                  </h3>
+               </div>
             </div>
-          ))}
         </div>
       </section>
 
@@ -739,7 +809,7 @@ const Portfolio = () => {
         <div className="relative flex overflow-hidden mb-6">
           <div className="flex animate-scroll hover:pause-on-hover gap-6 px-3 w-max">
             {[...infraStack, ...infraStack, ...infraStack].map((tech, i) => (
-              <TechBadge key={`infra-${i}`} {...tech} isActive={i === activeInfraIndex} />
+              <TechBadge key={`infra-${i}`} {...tech} isActive={tech.name === activeInfraName} />
             ))}
           </div>
         </div>
@@ -748,7 +818,7 @@ const Portfolio = () => {
         <div className="relative flex overflow-hidden">
           <div className="flex animate-scroll-reverse hover:pause-on-hover gap-6 px-3 w-max">
             {[...devStack, ...devStack, ...devStack].map((tech, i) => (
-              <TechBadge key={`dev-${i}`} {...tech} isActive={i === activeDevIndex} />
+              <TechBadge key={`dev-${i}`} {...tech} isActive={tech.name === activeDevName} />
             ))}
           </div>
         </div>
