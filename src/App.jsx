@@ -194,14 +194,13 @@ const ProjectPreviewModal = ({ project, onClose }) => {
 };
 
 const Portfolio = () => {
-  const [activeSection, setActiveSection] = useState('home');
   const [previewProject, setPreviewProject] = useState(null);
   
   // State for random icon highlighting (Using Name instead of Index for better visibility)
   const [activeInfraName, setActiveInfraName] = useState(null);
   const [activeDevName, setActiveDevName] = useState(null);
 
-  // NEW STATE: Track the SPECIFIC project being hovered
+  // NEW STATE: Track if *any* project card is hovered
   const [hoveredProject, setHoveredProject] = useState(null);
   const isAnyProjectHovered = hoveredProject !== null;
   
@@ -213,45 +212,6 @@ const Portfolio = () => {
   ]);
   const logContainerRef = useRef(null);
 
-  // --- 1. Dynamic Favicon & Title Logic ---
-  useEffect(() => {
-    // Set Page Title
-    document.title = "Vishal Shaji | Cloud & DevOps";
-
-    // Generate Dynamic Favicon [ VS ]
-    const canvas = document.createElement('canvas');
-    canvas.width = 64;
-    canvas.height = 64;
-    const ctx = canvas.getContext('2d');
-    
-    // Background: Dark Hex
-    ctx.fillStyle = '#0d1117'; 
-    ctx.fillRect(0, 0, 64, 64);
-    
-    // Border: Blue
-    ctx.strokeStyle = '#3b82f6';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(0, 0, 64, 64);
-
-    // Text: VS
-    ctx.font = 'bold 32px monospace';
-    ctx.fillStyle = '#3b82f6';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('VS', 32, 32);
-
-    // Update Favicon Link
-    const link = document.createElement('link');
-    link.type = 'image/x-icon';
-    link.rel = 'shortcut icon';
-    link.href = canvas.toDataURL("image/x-icon");
-    
-    // Remove existing favicons if any
-    const existingFavicons = document.querySelectorAll('link[rel="shortcut icon"]');
-    existingFavicons.forEach(e => e.remove());
-    
-    document.getElementsByTagName('head')[0].appendChild(link);
-  }, []);
 
   // --- Random Tech Highlight Logic (By Name) ---
   useEffect(() => {
